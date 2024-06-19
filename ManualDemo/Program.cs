@@ -1,3 +1,8 @@
+using ManualDemo.Models;
+using ManualDemo.Services;
+using Microsoft.EntityFrameworkCore;
+using SuperComUserTasks_.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +11,26 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Add DbContext service
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Configure CORS
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyHeader()
+               .AllowAnyMethod();
+    });
+});
+
+
+// Add UserService
+builder.Services.AddScoped<ToDoService>();
+//builder.Services.AddScoped<TaskService>();// another service
 
 var app = builder.Build();
 
@@ -17,6 +42,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Enable CORS
+app.UseCors();
 
 app.UseAuthorization();
 
